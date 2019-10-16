@@ -48,7 +48,7 @@ def fetch_tasks_state(url, state):
         try:
             url = url.format(state=state)
             client = HTTPClient(url)
-            logger.info("Fetching tasks state from {}".format(url))
+            logger.debug("Fetching tasks state from {}".format(url))
             return client.get()
         except Exception as err:
             logger.exception("Exception when fetching tasks: {}".format(err))

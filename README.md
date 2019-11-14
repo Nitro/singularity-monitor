@@ -23,14 +23,14 @@ and report them using [New Relic Insights][3] Data [API][4].
 
 ### New Relic Insights Dashboard
 
-Using [NewRelic Query Langage][6] (NRQL) you can build a graph on a dashboard from the data
+Using [NewRelic Query Langage][6] (NRQL) you can build a chart on a dashboard from the data
 source events using the following query:
 
 ```sql
 SELECT uniqueCount(id) FROM SingularityTaskEvent where version = 1 facet requestId, lastTaskState SINCE 24 hours AGO TIMESERIES 15 minutes
 ```
 
-This query display a graph of events for every `requestId` for last 24 hours ago such as below.
+This query display a chart of events for every `requestId` for last 24 hours ago such as below.
 
 ![New Relic Insights Dashboard](./assets/singularity-monitor-dashboard.png)
 
@@ -55,6 +55,50 @@ You can use build script `build.sh` provided in order to generate a new image.
 
 The script also upload to Docker registry in order to publish the image and
 create a `latest` tag.
+
+## Run
+
+### Using Python
+
+1. Create virtualenv
+
+```
+python3 -m sgmon-env /path/to/env/sgmon-env
+source /path/to/env/sgmon-env/bin/activate
+```
+
+2. Install dependencies
+
+Inside your virtual environment, install the required dependencies packages:
+
+```shell
+(sgmon-env) pip install -r requirements.txt --upgrade pip
+```
+
+3. Execute the program inside the virtual environment
+
+```shell
+export SINGULARITY_URL=http://.../singularity/
+export NEWRELIC_ACCOUNT_ID=<redacted>
+export NEWRELIC_INSIGHTS_KEY=<redacted>
+export NEW_RELIC_LICENSE_KEY=<redacted>
+$(which singularity-monitor)
+```
+
+### Using Docker
+
+You can pass all the environment variables in the `vars` file and execute the following command line:
+
+```shell
+docker run -ti --env-file vars -p 8888:8888 gonitro/singularity-monitor:latest
+```
+
+On **Successful** execution, you should see the log lines showing the New Relic agent has started to report metrics
+
+```
+2019-11-14 16:13:06,779     INFO [    sgmon.nr] Agent start reporting data to New Relic APM
+...
+```
 
 ## Configuration
 

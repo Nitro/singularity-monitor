@@ -78,7 +78,7 @@ Inside your virtual environment, install the required dependencies packages:
 3. Execute the program inside the virtual environment
 
 ```shell
-export SINGULARITY_URL=http://.../singularity/
+export SINGULARITY_URL=http://env-singularity-server-fqdn/singularity
 export NEWRELIC_ACCOUNT_ID=<redacted>
 export NEWRELIC_INSIGHTS_KEY=<redacted>
 export NEW_RELIC_LICENSE_KEY=<redacted>

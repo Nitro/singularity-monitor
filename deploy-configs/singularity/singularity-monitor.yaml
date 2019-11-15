@@ -1,0 +1,58 @@
+## Config to deploy https://github.com/Nitro/singularity-monitor
+## This configuration should be located at https://github.com/Nitro/singularity-monitor/blob/master/deploy-configs/singularity/singularity-monitor.yaml
+## usage: nmesos release singularity-monitor -e <env> -t <tag> --force --dryrun false
+nmesos_version: '0.2.15'
+
+common:
+
+  resources:
+    cpus: 0.1
+    memoryMb: 64
+    instances: 1
+
+  container:
+    image: gonitro/singularity-monitor
+    forcePullImage: true
+    ports:
+        - 8888 # health
+    labels:
+      ServiceName: "singularity-monitor"
+      SidecarDiscover: "false"
+    env_vars:
+      NEWRELIC_ACCOUNT_ID: "<redacted>"
+      NEWRELIC_INSIGHTS_KEY: "vault://secret/singularity-monitor/newrelic/insights_key"
+      NEW_RELIC_LICENSE_KEY: "vault://secret/singularity-monitor/newrelic/license_key"
+  singularity:
+    deployInstanceCountPerStep: 1   # Number of instances deployed at once.
+    autoAdvanceDeploySteps: true    # false to have Canary deployments.
+    deployStepWaitTimeMs:   1000    # 1 sec wait between deployments
+    healthcheckUri: "/health/"      # Used for singularity to determine if a deploy was success
+
+  executor:
+    customExecutorCmd: "/opt/mesos/executor.sh"
+    env_vars:
+      EXECUTOR_FORCE_CPU_LIMIT:    "true"   # Enable CPU CFS (Completely Fair Scheduler) limits
+      EXECUTOR_FORCE_MEMORY_LIMIT: "true"   # Enable Memory CFS (Completely Fair Scheduler) limits
+
+environments:
+  dev:
+    container:
+      labels:
+        EnvironmentName: "dev"
+      env_vars:
+        SINGULARITY_URL: "http://dev-singularity-server-fqdn/singularity"
+        NEW_RELIC_APP_NAME: "singularity-monitor-dev"
+        NEW_RELIC_ENVIRONMENT: "dev"
+    singularity:
+        url: "http://dev-singularity-server-fqdn/singularity"
+
+  prod:
+    container:
+      labels:
+        EnvironmentName: "prod"
+      env_vars:
+        SINGULARITY_URL: "http://prod-singularity-server-fqdn/singularity"
+        NEW_RELIC_APP_NAME: "singularity-monitor-prod"
+        NEW_RELIC_ENVIRONMENT: "prod"
+    singularity:
+        url: "http://prod-singularity-server-fqdn/singularity"

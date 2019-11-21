@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: singularity-monitor
+  namespace: default
+spec:
+  selector:
+    matchLabels:
+      app: singularity-monitor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        ServiceName: singularity-monitor
+        EnvironmentName: dev
+        app: singularity-monitor
+        tier: monitoring
+    spec:
+      containers:
+        - name: singularity-monitor
+          image: gonitro/singularity-monitor:latest
+          resources:
+            limits:
+              cpu: "1"
+              memory: "200Mi"
+            requests:
+              cpu: "0.5"
+              memory: "100Mi"
+          env:
+            - name: "NEWRELIC_ACCOUNT_ID"
+              value:  "<redacted>"
+            - name: "NEWRELIC_INSIGHTS_KEY"
+              value: "<redacted>"
+            - name: "NEW_RELIC_LICENSE_KEY"
+              value: "<redacted>"
+            - name: "NEW_RELIC_APP_NAME"
+              value: "singularity-monitor-dev"
+            - name: "NEW_RELIC_ENVIRONMENT"
+              value: "dev"
+            - name: "SINGULARITY_URL"
+              value: "http://dev-singularity-server-fqdn/singularity"
+          livenessProbe:
+            httpGet:
+              path: "/health/"
+              port: 8888
+            initialDelaySeconds: 10
+            periodSeconds: 60
+      imagePullSecrets:
+        - name: dockerhub
